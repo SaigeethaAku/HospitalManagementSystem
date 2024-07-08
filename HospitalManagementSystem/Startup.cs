@@ -1,6 +1,7 @@
 using HospitalManagementSystem.Constants;
 using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using HospitalManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -19,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace HospitalManagementSystem
@@ -32,10 +34,11 @@ namespace HospitalManagementSystem
 
         public IConfiguration Configuration { get; }
 
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           
+            services.AddScoped<IUserService, UserService>();
 
             services.AddDbContext<HospitalContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -65,6 +68,8 @@ namespace HospitalManagementSystem
                 // User settings
                 options.User.RequireUniqueEmail = true;
             });
+
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -83,14 +88,7 @@ namespace HospitalManagementSystem
              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
          };
      });
-     //.AddCookie(options =>
-     //{
-     //    options.Cookie.HttpOnly = true;
-     //    options.ExpireTimeSpan = TimeSpan.FromHours(1);
-     //    options.LoginPath = "/Account/Login"; // Set your login path
-     //    options.AccessDeniedPath = "/Account/AccessDenied"; // Set access denied path
-     //    options.SlidingExpiration = true;
-     //});
+    
 
             services.AddAuthorization(options =>
             {
@@ -134,6 +132,13 @@ namespace HospitalManagementSystem
                 new string[] { }
             }
         });
+            });
+
+            services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
             services.AddControllersWithViews();
         }

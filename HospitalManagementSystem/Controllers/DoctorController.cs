@@ -1,5 +1,6 @@
 ﻿using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using HospitalManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -35,14 +36,37 @@ namespace HospitalManagementSystem.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Doctor>> GetDoctor(int id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
+           // var doctor = await _context.Doctors.FindAsync(id);
+
+
+            var doctor = await _context.Doctors
+                                      .Include(d => d.Appointments)
+                                      .Where(d => d.Id == id)
+                                      .FirstOrDefaultAsync();
 
             if (doctor == null)
             {
                 return NotFound();
             }
+            var doctorDto = new DoctorDto
+            {
+                Id = doctor.Id,
+                FirstName = doctor.FirstName,
+                LastName = doctor.LastName,
+                Specialty = doctor.Specialty,
+                Appointments = doctor.Appointments.Select(a => new AppointmentDoctorDto
+                {
+                    Id = a.Id,
+                    Date = a.Date,
+                    Details = a.Reason,
+                   // PatientId = a.PatientId,
+                    PatientName = a.Patient.FirstName + " " + a.Patient.LastName,
+                }).ToList()
+            };
 
-            return doctor;
+            return Ok(doctor);
+
+           
         }
 
         [HttpPost]

@@ -1,10 +1,13 @@
 ﻿using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using HospitalManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace HospitalManagementSystem.Controllers
@@ -26,18 +29,105 @@ namespace HospitalManagementSystem.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Patient>>> GetPatients()
         {
-            return await _context.Patients.ToListAsync();
+          //  return await _context.Patients.ToListAsync();
+
+
+
+            var patients = await _context.Patients
+                                        .Include(p => p.Appointments)
+                                            .ThenInclude(a => a.Doctor)
+                                        .Include(p => p.MedicalRecords)
+                                        .Select(p => new PatientInfoDTO
+                                        {
+                                            FullName = p.FirstName + " " + p.LastName,
+                                            DateOfBirth = p.DateOfBirth,
+                                            Gender = p.Gender,
+                                            Address = p.Address,
+                                            PhoneNumber = p.PhoneNumber,
+                                            Appointments = p.Appointments.Select(a => new AppointmentPatientDto
+                                            {
+                                                Id = a.Id,
+                                                Date = a.Date,
+                                                Details = a.Reason,
+                                                DoctorId = a.DoctorId,
+                                                DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+                                            }).ToList(),
+                                            MedicalRecords = p.MedicalRecords.Select(x => new MedicalRecordDto
+                                            {
+                                                Id = x.Id,
+                                                RecordDate = x.RecordDate,
+                                                Description = x.Description,
+                                                DoctorId = x.DoctorId,
+                                                DoctorName = x.Doctor.FirstName + " " + x.Doctor.LastName,
+                                            }).ToList()
+                                        })
+                                        .ToListAsync();
+            return Ok(patients);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Patient>> GetPatient(int id)
+        public async Task<ActionResult<PatientInfoDTO>> GetPatient(int id)
         {
-            var patient = await _context.Patients.FindAsync(id);
+            var patient = await _context.Patients
+                                       .Where(p => p.Id == id)
+                                       .Select(p => new PatientInfoDTO
+                                       {
+                                           Id = p.Id,
+                                           FullName = p.FirstName+ " " + p.LastName,
+                                           DateOfBirth = p.DateOfBirth,
+                                           Gender = p.Gender,
+                                           Address = p.Address,
+                                           PhoneNumber = p.PhoneNumber,
+                                           Appointments = p.Appointments.Select(a => new AppointmentPatientDto
+                                           {
+                                               Id = a.Id,
+                                               Date = a.Date,
+                                               Details = a.Reason,
+                                               DoctorId = a.DoctorId,
+                                               DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+                                           }).ToList(),
+                                           MedicalRecords = p.MedicalRecords.Select(x=> new MedicalRecordDto
+                                           { 
+                                               Id = x.Id,
+                                               RecordDate = x.RecordDate,
+                                               Description = x.Description,
+                                               DoctorId= x.DoctorId,
+                                               DoctorName= x.Doctor.FirstName + " " + x.Doctor.LastName,
+                                           }).ToList()
+                                       })
+                                       .FirstOrDefaultAsync();
+
+
+
 
             if (patient == null)
             {
                 return NotFound();
             }
+
+            //var patientInfo = new PatientInfoDTO
+            //{
+            //    Id = patient.Id,
+            //    FullName = patient.FirstName,
+            //    LastName = patient.LastName,
+            //    Gender = patient.Gender,
+            //    Appointments = patient.Appointments.Select(a => new AppointmentPatientDto
+            //    {
+            //        Id = a.Id,
+            //        Date = a.Date,
+            //        Details = a.Reason,
+            //        DoctorId = a.DoctorId,
+            //        DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+            //    }).ToList(),
+            //    MedicalRecords = patient.MedicalRecords.Select(b => new MedicalRecordDto
+            //    {
+            //        Id = b.Id,
+            //        RecordDate = b.RecordDate,
+            //        Description = b.Description,
+            //        DoctorId = b.DoctorId,
+            //        DoctorName = b.Doctor.FirstName+ " "+ b.Doctor.LastName,
+            //    }).ToList()
+            //};
 
             return patient;
         }

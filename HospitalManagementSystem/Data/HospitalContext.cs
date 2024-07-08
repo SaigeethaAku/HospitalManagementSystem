@@ -1,4 +1,5 @@
 ﻿using HospitalManagementSystem.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Numerics;
@@ -19,12 +20,28 @@ namespace HospitalManagementSystem.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure one-to-many relationship between Patient and Appointment
+            modelBuilder.Entity<Patient>()
+                .HasMany(p => p.Appointments)
+                .WithOne(a => a.Patient)
+                .HasForeignKey(a => a.PatientId);
+
+            // Configure one-to-many relationship between Doctor and Appointment
+            modelBuilder.Entity<Doctor>()
+                .HasMany(d => d.Appointments)
+                .WithOne(a => a.Doctor)
+                .HasForeignKey(a => a.DoctorId);
+
             modelBuilder.Entity<Bill>(entity =>
             {
                 entity.Property(e => e.Amount).HasColumnType("decimal(18, 4)");
                 // or
                 // entity.Property(e => e.Amount).HasPrecision(18, 4);
             });
+           
         }
+
+
+
     }
-}
+    }
