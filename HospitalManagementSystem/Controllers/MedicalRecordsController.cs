@@ -1,5 +1,6 @@
 ﻿using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using HospitalManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HospitalManagementSystem.Controllers
 {
-    [Authorize(Roles = "Admin,Doctor")]
+   // [Authorize(Roles = "Admin,Doctor")]
     [Route("api/[controller]")]
     [ApiController]
     public class MedicalRecordsController : ControllerBase
@@ -26,6 +27,28 @@ namespace HospitalManagementSystem.Controllers
         {
             return await _context.MedicalRecords.Include(m => m.Patient).Include(m => m.Doctor).ToListAsync();
         }
+
+
+        [HttpGet("GetMedicalRecordsByPatient/{id}")]
+        public async Task<ActionResult<IEnumerable<MedicalRecordDto>>> GetMedicalRecordsByPatient(int id)
+        {
+            // return await _context.MedicalRecords.Include(m => m.Patient).Include(m => m.Doctor).ToListAsync();
+            var medicalRecords = await _context.MedicalRecords
+                                         .Where(a => a.PatientId == id)
+                                         .Include(a => a.Doctor)
+                                         .Select(a => new MedicalRecordDto
+                                         {
+                                             Id = a.Id,
+                                             RecordDate = a.RecordDate,
+                                             DoctorId = a.DoctorId,
+                                             DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+                                             Description = a.Description
+                                         })
+                                         .ToListAsync();
+            return medicalRecords;
+        }
+
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<MedicalRecord>> GetMedicalRecord(int id)
@@ -49,33 +72,13 @@ namespace HospitalManagementSystem.Controllers
             return CreatedAtAction("GetMedicalRecord", new { id = medicalRecord.Id }, medicalRecord);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMedicalRecord(int id, MedicalRecord medicalRecord)
+        [HttpPost("AddMedicalRecord/{id}")]
+        public async Task<IActionResult> PostMedicalRecord(int id, MedicalRecord medicalRecord)
         {
-            if (id != medicalRecord.Id)
-            {
-                return BadRequest();
-            }
+            _context.MedicalRecords.Add(medicalRecord);
+            await _context.SaveChangesAsync();
 
-            _context.Entry(medicalRecord).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MedicalRecordExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return CreatedAtAction("GetMedicalRecord", new { id = medicalRecord.Id }, medicalRecord);
         }
 
         [HttpDelete("{id}")]

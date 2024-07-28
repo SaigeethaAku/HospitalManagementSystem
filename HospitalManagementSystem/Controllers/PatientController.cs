@@ -26,7 +26,7 @@ namespace HospitalManagementSystem.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("GetAllPatients")]
         public async Task<ActionResult<IEnumerable<Patient>>> GetPatients()
         {
           //  return await _context.Patients.ToListAsync();
@@ -35,11 +35,13 @@ namespace HospitalManagementSystem.Controllers
 
             var patients = await _context.Patients
                                         .Include(p => p.Appointments)
-                                            .ThenInclude(a => a.Doctor)
+                                         .ThenInclude(a => a.Doctor)
                                         .Include(p => p.MedicalRecords)
                                         .Select(p => new PatientInfoDTO
                                         {
-                                            FullName = p.FirstName + " " + p.LastName,
+                                            Id = p.Id,
+                                            FirstName = p.FirstName ,
+                                            LastName =  p.LastName,
                                             DateOfBirth = p.DateOfBirth,
                                             Gender = p.Gender,
                                             Address = p.Address,
@@ -48,6 +50,7 @@ namespace HospitalManagementSystem.Controllers
                                             {
                                                 Id = a.Id,
                                                 Date = a.Date,
+                                                TimeSlot = a.TimeSlot,
                                                 Details = a.Reason,
                                                 DoctorId = a.DoctorId,
                                                 DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
@@ -73,7 +76,8 @@ namespace HospitalManagementSystem.Controllers
                                        .Select(p => new PatientInfoDTO
                                        {
                                            Id = p.Id,
-                                           FullName = p.FirstName+ " " + p.LastName,
+                                           FirstName = p.FirstName,
+                                           LastName = p.LastName,
                                            DateOfBirth = p.DateOfBirth,
                                            Gender = p.Gender,
                                            Address = p.Address,
@@ -82,6 +86,7 @@ namespace HospitalManagementSystem.Controllers
                                            {
                                                Id = a.Id,
                                                Date = a.Date,
+                                               TimeSlot = a.TimeSlot,
                                                Details = a.Reason,
                                                DoctorId = a.DoctorId,
                                                DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
@@ -132,7 +137,7 @@ namespace HospitalManagementSystem.Controllers
             return patient;
         }
 
-        [HttpPost]
+        [HttpPost("RegisterPatient")] 
         public async Task<ActionResult<Patient>> PostPatient(Patient patient)
         {
             _context.Patients.Add(patient);
@@ -170,7 +175,7 @@ namespace HospitalManagementSystem.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeletePatient/{id}")]
         public async Task<IActionResult> DeletePatient(int id)
         {
             var patient = await _context.Patients.FindAsync(id);

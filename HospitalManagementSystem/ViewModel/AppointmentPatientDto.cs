@@ -11,5 +11,6 @@ namespace HospitalManagementSystem.ViewModel
 
         public string DoctorName { get; set; }
         public DateTime Date { get; set; }
+        public string TimeSlot { get; set; }
     }
 }

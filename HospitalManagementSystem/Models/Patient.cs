@@ -13,8 +13,12 @@ namespace HospitalManagementSystem.Models
         public DateTime DateOfBirth { get; set; }
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
+        public string Username { get; set; }
+       
+ 
         // Relationships
         public ICollection<Appointment> Appointments { get; set; }
         public ICollection<MedicalRecord> MedicalRecords { get; set; }
+        public User User { get; set; }
     }
 }

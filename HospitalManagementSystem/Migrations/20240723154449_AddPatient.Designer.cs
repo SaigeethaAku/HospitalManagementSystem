@@ -4,6 +4,7 @@ using HospitalManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HospitalManagementSystem.Migrations
 {
     [DbContext(typeof(HospitalContext))]
-    partial class HospitalContextModelSnapshot : ModelSnapshot
+    [Migration("20240723154449_AddPatient")]
+    partial class AddPatient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,9 +43,6 @@ namespace HospitalManagementSystem.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TimeSlot")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -253,7 +253,7 @@ namespace HospitalManagementSystem.Migrations
             modelBuilder.Entity("HospitalManagementSystem.Models.MedicalRecord", b =>
                 {
                     b.HasOne("HospitalManagementSystem.Models.Doctor", "Doctor")
-                        .WithMany("MedicalRecords")
+                        .WithMany()
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -282,8 +282,6 @@ namespace HospitalManagementSystem.Migrations
             modelBuilder.Entity("HospitalManagementSystem.Models.Doctor", b =>
                 {
                     b.Navigation("Appointments");
-
-                    b.Navigation("MedicalRecords");
                 });
 
             modelBuilder.Entity("HospitalManagementSystem.Models.Patient", b =>

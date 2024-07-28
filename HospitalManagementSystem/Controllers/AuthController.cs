@@ -9,11 +9,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalManagementSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class AuthController : ControllerBase
     {
         private readonly HospitalContext _context;
@@ -37,13 +39,23 @@ namespace HospitalManagementSystem.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userLogin.Username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userLogin.Username && u.Role == userLogin.Role);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(userLogin.Password, user.Password))
                 return Unauthorized(new { message = "Invalid credentials" });
 
             var token = GenerateJwtToken(user);
             return Ok(new { token });
+        }
+        [HttpDelete("DeleteUserByUsername/{username}")]
+        public async Task<IActionResult> DeleteUser(string username)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "User deleted successfully!" });
         }
 
         private string GenerateJwtToken(User user)

@@ -8,6 +8,7 @@ namespace HospitalManagementSystem.ViewModel
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Specialty { get; set; }
+        public string Username { get; set; }
         public ICollection<AppointmentDoctorDto> Appointments { get; set; }
     }
 }

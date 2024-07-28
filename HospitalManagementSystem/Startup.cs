@@ -49,7 +49,13 @@ namespace HospitalManagementSystem
                 .AddEntityFrameworkStores<HospitalContext>()
                 .AddDefaultTokenProviders();
 
-
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder => builder.AllowAnyOrigin()
+                                      .AllowAnyMethod()
+                                      .AllowAnyHeader());
+            });
             // Configure Identity options (optional)
             services.Configure<IdentityOptions>(options =>
             {
@@ -170,7 +176,7 @@ namespace HospitalManagementSystem
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "HMS API V1");
-                c.RoutePrefix = "swagger"; // Set the URI path for accessing the Swagger UI
+              //  c.RoutePrefix = "swagger"; // Set the URI path for accessing the Swagger UI
             });
             app.UseEndpoints(endpoints =>
             {

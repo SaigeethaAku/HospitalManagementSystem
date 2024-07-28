@@ -45,7 +45,7 @@ namespace HospitalManagementSystem.Services
             }
 
             // Update user properties
-            user.FullName = model.FullName;
+            //user.FullName = model.FullName;
             user.Email = model.Email;
 
             // Update user using UserManager
