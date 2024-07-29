@@ -10,6 +10,7 @@ namespace HospitalManagementSystem.ViewModel
         public string Description { get; set; }
         public int DoctorId { get; set; }
         public string DoctorName { get; set; }
+        public string DoctorSpeciality { get; set; }
     }
 }
 

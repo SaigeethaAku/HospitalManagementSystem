@@ -42,6 +42,7 @@ namespace HospitalManagementSystem.Controllers
                                              RecordDate = a.RecordDate,
                                              DoctorId = a.DoctorId,
                                              DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+                                             DoctorSpeciality = a.Doctor.Specialty,
                                              Description = a.Description
                                          })
                                          .ToListAsync();

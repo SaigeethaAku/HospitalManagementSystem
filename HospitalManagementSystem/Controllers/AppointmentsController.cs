@@ -67,6 +67,7 @@ namespace HospitalManagementSystem.Controllers
                                              TimeSlot = a.TimeSlot,
                                              DoctorId = a.DoctorId,
                                              DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+                                             DoctorSpeciality = a.Doctor.Specialty,
                                              Details = a.Reason
                                          })
                                          .ToListAsync();

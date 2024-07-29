@@ -54,6 +54,7 @@ namespace HospitalManagementSystem.Controllers
                                                 Details = a.Reason,
                                                 DoctorId = a.DoctorId,
                                                 DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+                                                DoctorSpeciality = a.Doctor.LastName
                                             }).ToList(),
                                             MedicalRecords = p.MedicalRecords.Select(x => new MedicalRecordDto
                                             {
@@ -62,6 +63,7 @@ namespace HospitalManagementSystem.Controllers
                                                 Description = x.Description,
                                                 DoctorId = x.DoctorId,
                                                 DoctorName = x.Doctor.FirstName + " " + x.Doctor.LastName,
+                                                DoctorSpeciality = x.Doctor.Specialty
                                             }).ToList()
                                         })
                                         .ToListAsync();
@@ -90,6 +92,7 @@ namespace HospitalManagementSystem.Controllers
                                                Details = a.Reason,
                                                DoctorId = a.DoctorId,
                                                DoctorName = a.Doctor.FirstName + " " + a.Doctor.LastName,
+                                               DoctorSpeciality = a.Doctor.Specialty
                                            }).ToList(),
                                            MedicalRecords = p.MedicalRecords.Select(x=> new MedicalRecordDto
                                            { 
@@ -98,6 +101,7 @@ namespace HospitalManagementSystem.Controllers
                                                Description = x.Description,
                                                DoctorId= x.DoctorId,
                                                DoctorName= x.Doctor.FirstName + " " + x.Doctor.LastName,
+                                               DoctorSpeciality = x.Doctor.Specialty
                                            }).ToList()
                                        })
                                        .FirstOrDefaultAsync();
@@ -136,6 +140,18 @@ namespace HospitalManagementSystem.Controllers
 
             return patient;
         }
+        [HttpGet("GetPatientByUsername")]
+        public async Task<ActionResult<Patient>> GetPatientByUsername(string username)
+        {
+            var patient = await _context.Patients.FirstOrDefaultAsync(d => d.Username == username);
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(patient);
+        }
+
 
         [HttpPost("RegisterPatient")] 
         public async Task<ActionResult<Patient>> PostPatient(Patient patient)
